@@ -1,6 +1,6 @@
-# Hi, I'm Natalie 👋
+# Hi! I'm Natalie.
 
-Welcome to my portfolio! Here's a little bit about me, and a collection of some of my projects and papers.
+Here's a little bit about me, and a collection of some of my projects and papers.
 
 ## About Me
 
@@ -22,9 +22,16 @@ Trained and compared random forest and boosted tree models to predict daily spri
 **Formats:** [.html](./LINKHERE) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE)
 
 ### Understanding t-SNE: From Math to Visualization
-*(
+*(communication, data visualization)*
+
 A walkthrough of how t-SNE works, from the intuition behind dimensionality reduction to the math that happens under the hood. Illustrated with a worked example using the `iris` dataset in R.
 
 **Formats:** [.html](./LINKHERE) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE) | [.revealjs](./LINKHERE)
 
-### 
+### Another One
+
+## Writing
+
+### philosophy paper
+
+### something else
