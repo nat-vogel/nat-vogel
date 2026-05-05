@@ -26,12 +26,20 @@ Trained and compared random forest and boosted tree models to predict daily spri
 
 A walkthrough of how t-SNE works, from the intuition behind dimensionality reduction to the math that happens under the hood. Illustrated with a worked example using the `iris` dataset in R.
 
-**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/t-sne/t-sne-notebook.html) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE)
+**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/t-sne/t-sne-notebook.html) | [.pdf](projects/t-sne/t-sne-notebook.pdf) | [.qmd](projects/t-sne/t-sne-notebook.qmd)
 
 ### Another One
 
 ## Writing
 
-### philosophy paper
+### Philosophy Paper: Nietzsche
 
-### something else
+Briefly introduces Book V of Nietzsche’s *Gay Science* and explores his take on consciousness, the unconscious, language, and knowledge and how these are all related to the notions of acting, mask, and appearance.
+
+**Formats:** [.pdf](files/nietzsche_paper.pdf)
+
+### Album Review: Ranil - *Galaxia Tropical*
+
+A blog post written for KWVA, the U of O college radio station where I worked as a world music DJ. Also available on [the KWVA blog site.](https://kwva.uoregon.edu/blog/music/whatchu-know-about-la-selva)
+
+**Formats:** [.pdf](files/ranil_blog.pdf)
