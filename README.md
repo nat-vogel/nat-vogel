@@ -10,7 +10,7 @@ When I'm not coding, you can find me playing world music as a [DJ](https://spini
 
 🔗 Find me on [LinkedIn](https://www.linkedin.com/in/natalievvogel)  
 📫 Email me at natalievvogel@outlook.com  
-📋 Take a look at [my resume](./resume.pdf)
+📋 Take a look at [my resume](files/Natalie_Vogel_Resume.pdf)
 
 ## Projects
 
