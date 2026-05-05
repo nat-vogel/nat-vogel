@@ -26,7 +26,7 @@ Trained and compared random forest and boosted tree models to predict daily spri
 
 A walkthrough of how t-SNE works, from the intuition behind dimensionality reduction to the math that happens under the hood. Illustrated with a worked example using the `iris` dataset in R.
 
-**Formats:** [.html](./LINKHERE) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE) | [.revealjs](./LINKHERE)
+**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/t-sne/t-sne-notebook.html) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE)
 
 ### Another One
 
