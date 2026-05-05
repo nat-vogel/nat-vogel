@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Natalie Vogel">
+<meta name="dcterms.date" content="2026-03-11">
+
+<title>t-SNE</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="t-sne-notebook_files/libs/clipboard/clipboard.min.js"></script>
+<script src="t-sne-notebook_files/libs/quarto-html/quarto.js"></script>
+<script src="t-sne-notebook_files/libs/quarto-html/popper.min.js"></script>
+<script src="t-sne-notebook_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="t-sne-notebook_files/libs/quarto-html/anchor.min.js"></script>
+<link href="t-sne-notebook_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="t-sne-notebook_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="t-sne-notebook_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="t-sne-notebook_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="t-sne-notebook_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">t-SNE</h1>
+<p class="subtitle lead">Reducing the mysterious technique to its basic dimensions</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Natalie Vogel </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 11, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="https://hypercompetent.github.io/files/images/tsne_to_centroids.gif" class="img-fluid figure-img"></p>
+<figcaption>Image courtesy of hypercompetent.github.io</figcaption>
+</figure>
+</div>
+<p>In the world of working with data, sometimes we come across a dataset that makes us feel like we’re going to lose our $#%+!</p>
+<p>This can happen for a number of reasons, but sometimes it’s because our data has a <em>ton</em> of variables - whether it’s a dataset with 15 variables to predict whether or not a bank customer will churn, or an image dataset where each variable corresponds to one of the hundreds of pixels in each image. Data like this, with many many variables, is what we call <strong>high-dimensional data.</strong> A big challenge with high dimensional data is figuring out how to visualize it, since we can only see in <span class="math inline">\(\leq 3\)</span> dimensions, but our data can be n-dimensional.</p>
+<p>This is where dimension reduction methods come in. Dimension reduction methods are ways to mathematically transform our data into something with fewer variables (dimensions), while still preserving the meaning in the data. Most dimension reduction methods are themselves unsupervised machine learning methods, but they’re often used as preprocessing steps for other ML applications. You may have heard of <a href="https://setosa.io/ev/principal-component-analysis/">PCA</a>, which is a dimension reduction method that takes <strong>linear combinations</strong> of the variables in a dataset to reduce it to fewer dimensions, highlighting the main channels of variation in the data. PCA is a great tool, but it’s a <strong>linear</strong> dimension reduction method, which means it has trouble capturing nonlinear, complex relationships. For that, we need t-SNE.</p>
+<section id="the-big-picture" class="level2">
+<h2 class="anchored" data-anchor-id="the-big-picture">The Big Picture</h2>
+<p>t-SNE is an unsupervised, <strong>nonlinear</strong> dimension reduction method that allows us to visualize the structure of high dimensional data on a 2D graph. With t-SNE, the idea is to turn a high dimensional dataset into a matrix of pairwise similarities that can then be “mapped” onto a scatterplot, where the <strong>proximity</strong> between points on that plot reflect the <strong>similarity</strong> of the corresponding datapoints from the high dimensional dataset. To put that very simply, t-SNE takes similar points from a big dataset and puts them near each other on a scatterplot, forming clusters. This helps us get a feel for how the points are arranged in the high dimensional data space.</p>
+<p>The “t” in “t-SNE” refers to the Student’s t-distribution,<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> which is like a normal distribution, but with fatter tails:</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="t-sne-notebook_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:70.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And the “SNE” stands for <a href="https://www.cs.toronto.edu/~hinton/absps/sne.pdf">Stochastic Neighbor Embedding</a>, which is the dimension reduction method that t-SNE stems from.</p>
+</section>
+<section id="the-mechanics" class="level2">
+<h2 class="anchored" data-anchor-id="the-mechanics">The Mechanics</h2>
+<p>The math behind t-SNE can get very high level. Instead of providing a <a href="http://www.jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf">rigorous mathematical explanation</a>, I think we would all be better off if I describe the mathematical mechanics behind what’s going on. Here’s a little bit about how t-SNE works under the hood:</p>
+<p>Suppose we have a dataset <span class="math inline">\(X\)</span> that contains points <span class="math inline">\(x\)</span> in <span class="math inline">\(\mathbb{R}^n\)</span>.</p>
+<p>For each point <span class="math inline">\(x\)</span>, we want to find a low dimensional point <span class="math inline">\(y\)</span> in <span class="math inline">\(\mathbb{R}^k\)</span> (where <span class="math inline">\(k&lt;&lt;n\)</span>, usually <span class="math inline">\(k = 2\)</span> or <span class="math inline">\(3\)</span>) that maps <span class="math inline">\(x_i \mapsto y_i\)</span> such that the <strong>similarity</strong> of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span> is somehow reflected in the <strong>proximity</strong> of <span class="math inline">\(y_i\)</span> and <span class="math inline">\(y_j\)</span>.</p>
+<p>So now we need to define “similarity of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span>” and “proximity of <span class="math inline">\(y_i\)</span> and <span class="math inline">\(y_j\)</span>”:</p>
+<section id="similarity" class="level4">
+<h4 class="anchored" data-anchor-id="similarity">1. Similarity</h4>
+<p>The similarity of <span class="math inline">\(x_i\)</span> and <span class="math inline">\(x_j\)</span> is given by the conditional probability, <span class="math display">\[p_{j|i} = \frac{\exp(-||x_i - x_j||^2 / 2\sigma_i^2)}{\sum_{k\neq i} \exp(-||x_i - x_k||^2 / 2\sigma_i^2)}\]</span></p>
+<p>Looking at the numerator, <span class="math inline">\(-||x_i - x_j||^2\)</span> is the negative (Euclidean) distance between the two points squared. That’s not so bad! Then we divide that by <span class="math inline">\(2\sigma_i^2\)</span> which is a tunable parameter called “perplexity”. Perplexity can’t really be chosen empirically, so we play around with values (usually between 5 and 50) to find what gives us the best results. Lastly, we exponentiate this, which means the value of the numerator will be nearer to zero the further apart the points are, and nearer to one the closer the points are. The denominator basically just normalizes so all the probabilities for a given <span class="math inline">\(x_i\)</span> sum to one.</p>
+<p>The main takeaway here is that if points are near each other in the original high dimensional data, <span class="math inline">\(p_{j|i}\)</span> will be high, and if they are far apart, <span class="math inline">\(p_{j|i}\)</span> will be low. <span class="math inline">\(p_{j|i}\)</span> gives the probability that point <span class="math inline">\(x_i\)</span> would pick point <span class="math inline">\(x_j\)</span> as its neighbor if it was choosing based on a normal (Gaussian) probability density with itself (<span class="math inline">\(x_i\)</span>) as the center.</p>
+</section>
+<section id="proximity" class="level4">
+<h4 class="anchored" data-anchor-id="proximity">2. Proximity</h4>
+<p>The proximity of <span class="math inline">\(y_i\)</span> and <span class="math inline">\(y_j\)</span> is given by the joint probability, <span class="math display">\[q_{ij} = \frac{\exp(1 + ||y_i - y_j||^2)^{-1}}{\sum_{k\neq l} \exp(1 + ||x_i - x_k||^2)^{-1}}\]</span></p>
+<p>This is a similar equation to the previous one, but it uses a <strong>Student’s t-distribution</strong> instead of a normal (Gaussian) distribution. <span class="math inline">\(q_{ij}\)</span> gives the probability that point <span class="math inline">\(y_i\)</span> would pick point <span class="math inline">\(y_j\)</span> as its neighbor if it was choosing based on a Student’s t-distribution centered at <span class="math inline">\(y_i\)</span>.</p>
+</section>
+<section id="putting-it-all-together" class="level4">
+<h4 class="anchored" data-anchor-id="putting-it-all-together">3. Putting it all together</h4>
+<p>To reiterate, the main goal of t-SNE is to find a low dimensional representation of high dimensional data where the proximity between points in the low dimensional space (graph) reflect the similarity of the corresponding points in the high dimensional space (dataset). Translating this into the math we just covered, we want to choose <span class="math inline">\(y\)</span> such that <span class="math inline">\(q\)</span> looks like <span class="math inline">\(p\)</span>. To do this, we minimize <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Liebler divergence</a>, which is basically the average log likelihood ratio between <span class="math inline">\(p\)</span> and <span class="math inline">\(q\)</span>.</p>
+<p>In a nutshell: given data points <span class="math inline">\(x_i \in \mathbb{R}^n\)</span>, find locations <span class="math inline">\(y_i \in \mathbb{R}^k\)</span> to minimize the average log likelihood ratio between <span class="math inline">\(p_{j|i}\)</span> and <span class="math inline">\(q_{ij}\)</span>.</p>
+</section>
+</section>
+<section id="the-example" class="level2">
+<h2 class="anchored" data-anchor-id="the-example">The Example</h2>
+<p>You made it through the mechanics, and now it’s time for the satisfying part: the visualizations.</p>
+<p>I’m going to use the <code>iris</code> dataset, which is built in to R. It contains data on sepal length/width and petal length/width for 3 different species of iris flowers. This dataset is quite simple, which means it doesn’t produce the most mind blowing dimensionality reduction visualizations out there, but the fact that it comes pre-loaded into R and isn’t very long means anyone with R can replicate this example with a very short run time.</p>
+<section id="lets-do-some-t-sne" class="level4">
+<h4 class="anchored" data-anchor-id="lets-do-some-t-sne">Let’s do some t-SNE:</h4>
+<p>There are a couple packages that can be used to perform t-SNE in R, but the most popular seems to be the aptly named Rtsne.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rtsne)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The Rtsne package has an identically named function that we will use to perform t-SNE. The function wants to be supplied <strong>numeric data</strong> in <strong>matrix format</strong> that <strong>doesn’t contain any duplicate rows</strong>. It is also recommended to <strong>normalize</strong> - such as with the <code>scale()</code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> function - this matrix before passing it into <code>Rtsne()</code>. Let’s go through this preprocessing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># first remove duplicates</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>iris_unique <span class="ot">&lt;-</span> <span class="fu">unique</span>(iris)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># then pull species data (for plotting later)</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>species <span class="ot">&lt;-</span> iris_unique<span class="sc">$</span>Species</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># then form matrix for t-SNE</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>iris_matrix <span class="ot">&lt;-</span> iris_unique <span class="sc">%&gt;%</span> </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>Species) <span class="sc">%&gt;%</span>  <span class="co"># remove character column (numeric data ONLY)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>() <span class="sc">%&gt;%</span>  <span class="co"># matrix format</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale</span>()  <span class="co"># normalize</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we are ready to run t-SNE. We will supply <code>Rtsne()</code> the matrix above, and set some parameters. <a href="https://cran.r-project.org/web/packages/Rtsne/Rtsne.pdf">There are many parameters</a>, but generally the most essential ones are:</p>
+<ul>
+<li><code>dims</code>: the number of output dimensions. 2 for a 2D scatterplot, 3 for a 3D graph.</li>
+<li><code>perplexity</code>: the aforementioned perplexity parameter, which says (loosely) how to balance attention between local and global aspects of the data. Play around with values between 5-50, but as a rule: 3 * perplexity &lt; nrow(X) - 1 .</li>
+<li><code>max_iter</code>: the number of iterations. The default is 1000, but some datasets will need more iterations to converge to a stable representation. Increase until the configuration looks stable, or set to 5000 to be safe (note that this will take longer to run).</li>
+</ul>
+<p>Running t-SNE on our preprocessed <code>iris</code> matrix:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">101506</span>)  <span class="co"># it's important to set a seed! t-SNE viz can change iter to iter</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># running t-SNE</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>tsne_output <span class="ot">&lt;-</span> <span class="fu">Rtsne</span>(iris_matrix,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">dims =</span> <span class="dv">2</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">perplexity =</span> <span class="dv">15</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">max_iter =</span> <span class="dv">5000</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># turning outputted values into a df, along with the species data we set aside</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>tsne_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(tsne_output<span class="sc">$</span>Y,  </span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">species =</span> species)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># plotting</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tsne_df, <span class="fu">aes</span>(<span class="at">x =</span> X1,  <span class="co"># first dim outputted</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y =</span> X2,  <span class="co"># second dim outputted</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">color =</span> species)) <span class="sc">+</span>  <span class="co"># color by species to see clustering</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">"plasma"</span>) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"t-SNE"</span>) <span class="sc">+</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="t-sne-notebook_files/figure-html/iris%20tsne-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As we can see, t-SNE pretty successfully separated the data into clusters by species! You might be seeing the slight overlap between the classification of the Versicolor and Virginica iris species, so let me show you why that might be:</p>
+<p><img src="https://content.codecademy.com/programs/machine-learning/k-means/iris.svg" class="img-fluid"></p>
+<p>Those two iris species look VERY similar, especially compared to the Setosa species! So all things considered, t-SNE performed quite well.</p>
+<p>Lastly, I want to dig into the mysterious perplexity parameter a little. I think the best way to understand how perplexity affects the projection of the high-dim data onto the low-dim representation is to see it in real time. Here is an animation I made with <code>gganimate</code> that loops the same t-SNE process as before, but using different perplexity values each time:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gganimate)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># set perplexity values to loop through</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>perplexities <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>, <span class="dv">35</span>, <span class="dv">40</span>, <span class="dv">45</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># same exact process as before, but using lapply() to loop through perplexity values</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>tsne_df <span class="ot">&lt;-</span> <span class="fu">lapply</span>(perplexities, <span class="cf">function</span>(p) {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">101506</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  tsne_output <span class="ot">&lt;-</span> <span class="fu">Rtsne</span>(iris_matrix, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                       <span class="at">dims =</span> <span class="dv">2</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                       <span class="at">perplexity =</span> p,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                       <span class="at">max_iter =</span> <span class="dv">5000</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(tsne_output<span class="sc">$</span>Y, </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">perplexity =</span> p, </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">species =</span> species)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>()</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(tsne_df, <span class="fu">aes</span>(<span class="at">x =</span> X1, </span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">y =</span> X2, </span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>                    <span class="at">color =</span> species)) <span class="sc">+</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>(<span class="at">option =</span> <span class="st">"plasma"</span>) <span class="sc">+</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"ta-da!"</span>, </span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"perplexity: {closest_state}"</span>) <span class="sc">+</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">transition_states</span>(perplexity) <span class="sc">+</span>  <span class="co"># from gganimate</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="t-sne-notebook_files/figure-html/iris%20animate-1.gif" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>As you can see, perplexity can change the representation quite a bit, so it’s important to play around with different values and to take that variation into consideration when interpreting t-SNE. For more information on interpreting t-SNE plots, <a href="https://distill.pub/2016/misread-tsne/">this article</a> from Distill is an excellent resource.</p>
+</section>
+<section id="wrapping-up" class="level3">
+<h3 class="anchored" data-anchor-id="wrapping-up">Wrapping up</h3>
+<p>In sum, t-SNE is an unsupervised nonlinear dimension reduction method that lets us lay out large datasets in 2D maps. From these maps, we can see the structure of the data, like we did when we saw the separation of datapoints by species in the <code>iris</code> dataset. While the concept of t-SNE can be hard to grasp at first - and the math can be even harder - implementing t-SNE in R is pretty straightforward with help from the <code>Rtsne</code> package. t-SNE is an exciting way to reduce complex data into basic (yet informative) dimensions, and I hope you were able to learn something from this basic introduction into the complex world of t-SNE!</p>
+</section>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>“Student” was the pseudonym of William Sealy Gosset, who introduced the t-distribution &amp; t-test while working at Guinness Brewery in Ireland<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p><code>base::scale()</code> does the exact same thing as <code>tidymodels::step_normalize()</code><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
