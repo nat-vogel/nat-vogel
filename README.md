@@ -19,7 +19,7 @@ When I'm not coding, you can find me playing world music as a [DJ](https://spini
 
 Cleaned and analyzed hourly rainfall data across Eugene/Springfield personal weather stations to explore how well a single station predicts region-wide precipitation patterns.
 
-**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/weather/weather_analysis.html) | [.ipynb](weather/weather_analysis.ipynb)
+**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/weather/weather_analysis.html) | [.ipynb](projects/weather/weather_analysis.ipynb)
 
 ### Understanding t-SNE: From Math to Visualization
 *(communication, data visualization)*
