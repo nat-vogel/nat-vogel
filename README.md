@@ -14,12 +14,12 @@ When I'm not coding, you can find me playing world music as a [DJ](https://spini
 
 ## Projects
 
-### Predicting Chinook Salmon Runs At The Bonneville Dam
-*(machine learning, prediction, R)*
+### Local Weather Station Analysis
+*(data analysis, Python)*
 
-Trained and compared random forest and boosted tree models to predict daily spring Chinook salmon passage counts at the Bonneville Dam using 25 years of river and fish passage data, achieving an $R^2$ > 0.95 on held-out test data.
+Cleaned and analyzed hourly rainfall data across Eugene/Springfield personal weather stations to explore how well a single station predicts region-wide precipitation patterns.
 
-**Formats:** [.html](./LINKHERE) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE)
+**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/weather/weather_analysis.html) | [.ipynb](weather/weather_analysis.ipynb)
 
 ### Understanding t-SNE: From Math to Visualization
 *(communication, data visualization)*
@@ -28,7 +28,12 @@ A walkthrough of how t-SNE works, from the intuition behind dimensionality reduc
 
 **Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/t-sne/t-sne-notebook.html) | [.pdf](projects/t-sne/t-sne-notebook.pdf) | [.qmd](projects/t-sne/t-sne-notebook.qmd)
 
-### Another One
+### Predicting Chinook Salmon Runs At The Bonneville Dam
+*(machine learning, prediction, R)*
+
+Trained and compared random forest and boosted tree models to predict daily spring Chinook salmon passage counts at the Bonneville Dam using 25 years of river and fish passage data, achieving an $R^2$ > 0.95 on held-out test data.
+
+**Formats:** [.html](./LINKHERE) | [.pdf](./LINKHERE) | [.qmd](./LINKHERE)
 
 ## Writing
 
