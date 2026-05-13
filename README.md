@@ -14,19 +14,21 @@ When I'm not coding, you can find me playing world music as a [DJ](https://spini
 
 ## Projects
 
-### Local Weather Station Analysis
-*(data analysis, Python)*
-
-Cleaned and analyzed hourly rainfall data across Eugene/Springfield personal weather stations to explore how well a single station predicts region-wide precipitation patterns.
-
-**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/weather/weather_analysis.html) | [.ipynb](projects/weather/weather_analysis.ipynb)
-
 ### Understanding t-SNE: From Math to Visualization
 *(communication, data visualization)*
 
 A walkthrough of how t-SNE works, from the intuition behind dimensionality reduction to the math that happens under the hood. Illustrated with a worked example using the `iris` dataset in R.
 
 **Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/t-sne/t-sne-notebook.html) | [.pdf](projects/t-sne/t-sne-notebook.pdf) | [.qmd](projects/t-sne/t-sne-notebook.qmd)
+
+
+### Local Weather Station Data Analysis
+*(data analysis, Python)*
+
+Cleaned and analyzed hourly rainfall data across Eugene/Springfield personal weather stations to explore how well a single station predicts region-wide precipitation patterns.
+
+**Formats:** [.html](https://nat-vogel.github.io/nat-vogel/projects/weather/weather_analysis.html) | [.ipynb](projects/weather/weather_analysis.ipynb)
+
 
 ### Predicting Chinook Salmon Runs At The Bonneville Dam
 *(machine learning, prediction, R)*
@@ -45,6 +47,6 @@ Briefly introduces Book V of Nietzsche’s *Gay Science* and explores his take o
 
 ### Album Review: Ranil - *Galaxia Tropical*
 
-A blog post written for KWVA, the U of O college radio station where I worked as a world music DJ. Also available on [the KWVA blog site.](https://kwva.uoregon.edu/blog/music/whatchu-know-about-la-selva)
+A blog post written for KWVA, the University of Oregon college radio station where I worked as a world music DJ. Also available on [the KWVA blog site.](https://kwva.uoregon.edu/blog/music/whatchu-know-about-la-selva)
 
 **Formats:** [.pdf](files/ranil_blog.pdf)
